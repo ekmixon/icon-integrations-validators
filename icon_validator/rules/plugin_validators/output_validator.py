@@ -38,11 +38,7 @@ class OutputValidator(KomandPluginValidator):
         text = text.strip()
         output_pattern = '(?s)"""(.*?)"""'
         results = re.findall(output_pattern, text)
-        if len(results) == 2:
-            json_ = json.loads(results[1])  # Action: 0 for input, 1 for output
-        else:
-            json_ = json.loads(results[2])  # Task: 0 for input, 1 for state, 2 for output
-        return json_
+        return json.loads(results[1]) if len(results) == 2 else json.loads(results[2])
 
     def validate(self, spec):
         schemas = OutputValidator.get_schemas(spec)

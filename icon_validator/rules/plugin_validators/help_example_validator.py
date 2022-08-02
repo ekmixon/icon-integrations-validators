@@ -10,12 +10,10 @@ class HelpExampleValidator(KomandPluginValidator):
 
     @staticmethod
     def get_objects(function_pattern, raw_help):
-        raw_object = re.findall(function_pattern, raw_help, re.DOTALL)
-
-        if not raw_object:
+        if raw_object := re.findall(function_pattern, raw_help, re.DOTALL):
+            return re.findall(HelpExampleValidator.pattern, raw_object[0], re.DOTALL)
+        else:
             return
-
-        return re.findall(HelpExampleValidator.pattern, raw_object[0], re.DOTALL)
 
     @staticmethod
     def add_json_error(input_output, function_type, title):

@@ -42,9 +42,5 @@ class ReportIp(insightconnect_plugin_runtime.Action):
                 assistance=f"(non-JSON or no response was received). Response was: {r.text}",
             )
 
-        if len(out) > 0:
-            out[Output.SUCCESS] = True
-        else:
-            out[Output.SUCCESS] = False
-
+        out[Output.SUCCESS] = len(out) > 0
         return out

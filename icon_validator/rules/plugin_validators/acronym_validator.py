@@ -85,9 +85,10 @@ class AcronymValidator(KomandPluginValidator):
                 AcronymValidator.validate_subsection(spec.spec_dictionary()[section], bad)
 
         err_msg = ""
-        if len(bad) > 0:
-            err_msg += f"Acronyms found in plugin.spec.yaml that should be capitalized: {str(bad)}\n"
-        if len(bad_help) > 0:
-            err_msg += f"Acronyms found in help.md that should be capitalized: {str(bad_help)}"
+        if bad:
+            err_msg += f"Acronyms found in plugin.spec.yaml that should be capitalized: {bad}\n"
+
+        if bad_help:
+            err_msg += f"Acronyms found in help.md that should be capitalized: {bad_help}"
         if err_msg != "":
             raise ValidationException(err_msg)

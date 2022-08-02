@@ -30,7 +30,7 @@ def main():
     # this is a required field, and argparse enforces it, so we are 100% sure this key exists:
     path = the_arguments.path
 
-    if os.path.exists(path + "/workflow.spec.yaml"):
+    if os.path.exists(f"{path}/workflow.spec.yaml"):
         spec_file_name = "workflow.spec.yaml"
         if the_arguments.run_all_validators:
             sys.stderr.write(

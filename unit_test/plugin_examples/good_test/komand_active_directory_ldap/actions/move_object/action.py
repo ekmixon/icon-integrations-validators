@@ -35,5 +35,5 @@ class MoveObject(komand.Action):
         if result['result'] == 0:
             return {'success': True}
 
-        self.logger.error('failed: error message %s' % output)
+        self.logger.error(f'failed: error message {output}')
         return {'success': False}

@@ -20,10 +20,7 @@ class Connection(komand.Connection):
 
         params['port'] = params.get('port') or 389
 
-        use_ssl = False
-        if params.get('use_ssl'):
-            use_ssl = True
-
+        use_ssl = bool(params.get('use_ssl'))
         server = ldap3.Server(
                 host=params['host'],
                 port=params['port'],

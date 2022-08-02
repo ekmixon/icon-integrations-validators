@@ -57,11 +57,14 @@ class ADUtils:
             if char == '(':
                 temp_stack.append(idx)
             elif char == ')':
-                if len(temp_stack) == 0:
-                    raise PluginException(cause="No matching closing parentheses at: " + str(idx))
+                if not temp_stack:
+                    raise PluginException(cause=f"No matching closing parentheses at: {str(idx)}")
                 pairs[temp_stack.pop()] = idx
 
-        if len(temp_stack) > 0:
-            raise PluginException(cause="No matching opening parentheses at: " + str(temp_stack.pop()))
+        if temp_stack:
+            raise PluginException(
+                cause=f"No matching opening parentheses at: {str(temp_stack.pop())}"
+            )
+
 
         return pairs

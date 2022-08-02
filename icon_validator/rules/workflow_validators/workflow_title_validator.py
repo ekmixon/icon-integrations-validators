@@ -35,15 +35,19 @@ class WorkflowTitleValidator(KomandPluginValidator):
             if not title.startswith(word):
                 if word in title_validation_list:
                     raise ValidationException(f"Title contains a capitalized '{word}' when it should not.")
-                elif "By" == word and not title.endswith("By"):
+                elif word == "By" and not title.endswith("By"):
                     # This is OK: Order By
                     # This is NOT OK: Search By String
                     raise ValidationException("Title contains a capitalized 'By' when it should not.")
-                elif "Of" == word and not title.endswith("Of"):
+                elif word == "Of" and not title.endswith("Of"):
                     # This is OK: Member Of
                     # This is NOT OK: Type Of String
                     raise ValidationException("Title contains a capitalized 'Of' when it should not.")
-                elif not word[0].isupper() and not word.capitalize() in title_validation_list:
-                    if not word.isnumeric():
-                        if not word.lower() == "by" or word.lower() == "of":
-                            raise ValidationException(f"Title contains a lowercase '{word}' when it should not.")
+                elif (
+                    not word[0].isupper()
+                    and word.capitalize() not in title_validation_list
+                ):
+                    if not word.isnumeric() and (
+                        word.lower() != "by" or word.lower() == "of"
+                    ):
+                        raise ValidationException(f"Title contains a lowercase '{word}' when it should not.")

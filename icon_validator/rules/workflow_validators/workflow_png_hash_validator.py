@@ -18,7 +18,7 @@ class WorkflowPNGHashValidator(KomandPluginValidator):
                 temp = file.read()
                 hasher.update(temp)
             hash_ = hasher.hexdigest()
-            if not hash_ == self._GOOD_HASH:
+            if hash_ != self._GOOD_HASH:
                 raise ValidationException(
                     "The extension.png file in the workflow directory is incorrect."
                     " The file should have a SHA256 hash of"

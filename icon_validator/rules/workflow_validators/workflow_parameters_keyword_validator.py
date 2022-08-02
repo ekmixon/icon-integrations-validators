@@ -21,8 +21,7 @@ class WorkflowParametersKeywordValidator(KomandPluginValidator):
 
         # See if we have a parameters section in the WF and verify it isn't empty
         if "parameters" in workflow_version_keys:
-            parameters = workflow_version.get("parameters")
-            if parameters:
+            if parameters := workflow_version.get("parameters"):
                 return True
         return False
 
@@ -35,6 +34,6 @@ class WorkflowParametersKeywordValidator(KomandPluginValidator):
         if self.are_parameters_present_in_icon_file(spec):
             spec_dictionary = spec.spec_dictionary()
             keywords = spec_dictionary.get("hub_tags", {}).get("keywords", [])
-            if not "parameters" in keywords:
+            if "parameters" not in keywords:
                 raise ValidationException("The workflow uses parameters, however the parameters "
                                           "keyword is not present in workflow.spec.yaml keywords")

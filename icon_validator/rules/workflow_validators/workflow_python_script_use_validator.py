@@ -19,13 +19,9 @@ class WorkflowPythonScriptUseValidator(KomandPluginValidator):
         :param workflow: dataclass workflow
         :return: list of steps that use the python plugin
         """
-        findings = []
         wf = workflow.kom.get_latest_workflow_version()
         plugins = wf.get_plugins_used()
-        for plug in plugins:
-            if self._PLUGIN_NAME in plug["plugin_name"]:
-                findings.append(plug)
-        return findings
+        return [plug for plug in plugins if self._PLUGIN_NAME in plug["plugin_name"]]
 
     def validate(self, spec):
         """

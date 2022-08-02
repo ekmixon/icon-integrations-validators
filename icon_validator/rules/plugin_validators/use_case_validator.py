@@ -33,10 +33,11 @@ class UseCaseValidator(KomandPluginValidator):
 
     @staticmethod
     def validate_use_cases(use_cases: [str]) -> [str]:
-        invalid_use_cases = []
-        for use_case in use_cases:
-            if use_case not in UseCaseValidator.use_case_ids:
-                invalid_use_cases.append(use_case)
+        invalid_use_cases = [
+            use_case
+            for use_case in use_cases
+            if use_case not in UseCaseValidator.use_case_ids
+        ]
 
         if len(invalid_use_cases):
             err = ", ".join(invalid_use_cases)
@@ -51,10 +52,11 @@ class UseCaseValidator(KomandPluginValidator):
         if not keywords:
             return
 
-        invalid_keywords = []
-        for keyword in keywords:
-            if keyword in UseCaseValidator.use_case_ids:
-                invalid_keywords.append(keyword)
+        invalid_keywords = [
+            keyword
+            for keyword in keywords
+            if keyword in UseCaseValidator.use_case_ids
+        ]
 
         if len(invalid_keywords):
             bad_keywords = ", ".join(invalid_keywords)

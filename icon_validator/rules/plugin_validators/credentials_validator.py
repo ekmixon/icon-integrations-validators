@@ -37,5 +37,5 @@ class CredentialsValidator(KomandPluginValidator):
                                     break
                     except AttributeError:
                         pass
-        if len(violating_files) > 0:
+        if violating_files:
             raise ValidationException(f"Remove credentials from the following files: {violating_files}.")

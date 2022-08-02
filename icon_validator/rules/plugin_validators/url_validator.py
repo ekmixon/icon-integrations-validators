@@ -32,8 +32,8 @@ class URLValidator(KomandPluginValidator):
         for web_address in urls_from_file:
             if web_address.lower() in ["help.md", "license.md", "readme.md"]:
                 continue
-            if not web_address[0:4] == "http":
-                web_address = "http://" + web_address
+            if web_address[:4] != "http":
+                web_address = f"http://{web_address}"
             address_parts = urllib.parse.urlparse(web_address)
             cleaned_web_address = address_parts.netloc
 
@@ -63,14 +63,14 @@ class URLValidator(KomandPluginValidator):
         return return_list
 
     def validate(self, spec):
-        specfile = spec.directory + "/" + spec.spec_file_name
+        specfile = f"{spec.directory}/{spec.spec_file_name}"
         if os.path.exists(specfile):
             raw_spec_contents = spec.raw_spec()
             spec_file_bad_urls = self.inspect_file_for_urls_and_test_them(raw_spec_contents)
             if len(spec_file_bad_urls) > 0:
                 self._violating_files_to_urls_map[specfile] = spec_file_bad_urls
 
-        helpfile = spec.directory + "/help.md"
+        helpfile = f"{spec.directory}/help.md"
         if os.path.exists(helpfile):
             help_file_contents = ""
             with open(helpfile) as h:

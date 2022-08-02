@@ -98,24 +98,25 @@ class VersionBumpValidator(KomandPluginValidator):
 
     def validate_no_types_changed(self, remote: dict, local: dict):
         # verifies that types have not been changed between spec versions
-        if SpecConstants.TYPES in remote and SpecConstants.TYPES in local:
-            self.validate_all_types_exist(remote, local)
-            for type_key, type_value in remote[SpecConstants.TYPES].items():
-                for type_inner_key, type_inner_val in type_value.items():
-                    local_type_in = local[SpecConstants.TYPES][type_key]
-                    if type_inner_key not in local_type_in:
-                        raise ValidationException(f"Type {type_inner_key} removed from {type_key} without a major"
-                                                  f" version increment."
-                                                  f"{self.MAJOR_INSTRUCTIONS_STRING}")
-                    if type_inner_val[SpecConstants.TYPE] != local_type_in[type_inner_key][SpecConstants.TYPE]:
-                        raise ValidationException(f"Type {type_inner_key} changed in type {type_key} without a major"
-                                                  f" version increment."
-                                                  f"{self.MAJOR_INSTRUCTIONS_STRING}")
+        if SpecConstants.TYPES not in remote or SpecConstants.TYPES not in local:
+            return
+        self.validate_all_types_exist(remote, local)
+        for type_key, type_value in remote[SpecConstants.TYPES].items():
+            for type_inner_key, type_inner_val in type_value.items():
+                local_type_in = local[SpecConstants.TYPES][type_key]
+                if type_inner_key not in local_type_in:
+                    raise ValidationException(f"Type {type_inner_key} removed from {type_key} without a major"
+                                              f" version increment."
+                                              f"{self.MAJOR_INSTRUCTIONS_STRING}")
+                if type_inner_val[SpecConstants.TYPE] != local_type_in[type_inner_key][SpecConstants.TYPE]:
+                    raise ValidationException(f"Type {type_inner_key} changed in type {type_key} without a major"
+                                              f" version increment."
+                                              f"{self.MAJOR_INSTRUCTIONS_STRING}")
 
-                    if type_inner_val[SpecConstants.REQUIRED] != local_type_in[type_inner_key][SpecConstants.REQUIRED]:
-                        raise ValidationException(f"Type {type_inner_key} changed in type {type_key} without a major"
-                                                  f"version increment."
-                                                  f"{self.MAJOR_INSTRUCTIONS_STRING}")
+                if type_inner_val[SpecConstants.REQUIRED] != local_type_in[type_inner_key][SpecConstants.REQUIRED]:
+                    raise ValidationException(f"Type {type_inner_key} changed in type {type_key} without a major"
+                                              f"version increment."
+                                              f"{self.MAJOR_INSTRUCTIONS_STRING}")
 
     def validate_no_inner_type_changes(self, remote, local):
         self.abstract_validate_no_change(remote, local, SpecConstants.INPUT, SpecConstants.TYPE)
@@ -141,27 +142,33 @@ class VersionBumpValidator(KomandPluginValidator):
     def validate_no_input_new_or_required(self, remote: dict, local: dict):
         # operates on dictionary of individual action/trigger/task
         for input_key, input_value in local[SpecConstants.INPUT].items():
-            if input_value[SpecConstants.REQUIRED]:
-                if input_key not in remote[SpecConstants.INPUT] or \
-                  not remote[SpecConstants.INPUT][input_key][SpecConstants.REQUIRED]:
-                    raise ValidationException(f"Input has been added or changed to required in {input_key} without"
-                                              f" a major version increment."
-                                              f"{self.MAJOR_INSTRUCTIONS_STRING}")
+            if input_value[SpecConstants.REQUIRED] and (
+                input_key not in remote[SpecConstants.INPUT]
+                or not remote[SpecConstants.INPUT][input_key][
+                    SpecConstants.REQUIRED
+                ]
+            ):
+                raise ValidationException(f"Input has been added or changed to required in {input_key} without"
+                                          f" a major version increment."
+                                          f"{self.MAJOR_INSTRUCTIONS_STRING}")
 
     def validate_no_output_no_longer_required(self, remote: dict, local: dict):
         # verifies that outputs have not been changed from required to optional
         # input: complete spec dictionary
         if SpecConstants.OUTPUT in remote and SpecConstants.OUTPUT in local:
             for output_key, output_vals in remote[SpecConstants.OUTPUT].items():
-                if SpecConstants.REQUIRED in output_vals and \
-                        SpecConstants.REQUIRED in local[SpecConstants.OUTPUT][output_key]:
-                    if output_vals[SpecConstants.REQUIRED]:
-                        # We know this output exists because this validator is called after verifying all outputs exist
-                        local_spec_req = local[SpecConstants.OUTPUT][output_key][SpecConstants.REQUIRED]
-                        if not local_spec_req:
-                            raise ValidationException(f"Output {output_key} has been changed to not required in "
-                                                      "without a major version increment."
-                                                      f"{self.MAJOR_INSTRUCTIONS_STRING}")
+                if (
+                    SpecConstants.REQUIRED in output_vals
+                    and SpecConstants.REQUIRED
+                    in local[SpecConstants.OUTPUT][output_key]
+                    and output_vals[SpecConstants.REQUIRED]
+                ):
+                    # We know this output exists because this validator is called after verifying all outputs exist
+                    local_spec_req = local[SpecConstants.OUTPUT][output_key][SpecConstants.REQUIRED]
+                    if not local_spec_req:
+                        raise ValidationException(f"Output {output_key} has been changed to not required in "
+                                                  "without a major version increment."
+                                                  f"{self.MAJOR_INSTRUCTIONS_STRING}")
 
     def validate_no_output_removed(self, remote: dict, local: dict):
         for item in remote[SpecConstants.OUTPUT]:
@@ -237,10 +244,9 @@ class VersionBumpValidator(KomandPluginValidator):
                     if value[SpecConstants.TYPE] != curr_compare[SpecConstants.TYPE]:
                         raise ValidationException(f"Type changed in connection field {key}, requiring a major version"
                                                   f" increment.{self.MAJOR_INSTRUCTIONS_STRING}")
-        else:
-            if SpecConstants.CONNECTIONS in local:
-                raise ValidationException(f"Connection newly added to {RepoConstants.PLUGIN_SPEC}. This requires a"
-                                          f" major version increment.{self.MAJOR_INSTRUCTIONS_STRING}")
+        elif SpecConstants.CONNECTIONS in local:
+            raise ValidationException(f"Connection newly added to {RepoConstants.PLUGIN_SPEC}. This requires a"
+                                      f" major version increment.{self.MAJOR_INSTRUCTIONS_STRING}")
 
     def validate_inner_fields(self, remote, local):
         self.validate_no_sections_removed(remote, local)
@@ -259,46 +265,44 @@ class VersionBumpValidator(KomandPluginValidator):
         # Checks to see if version is valid sem-ver, and if we already bumped major version
         local_version = local["version"].split('.')
         remote_version = remote["version"].split('.')
-        if len(local_version) == 3 and len(remote_version) == 3:
-            local_version = VersionBumpValidator.modify_version_array(local_version)
-            remote_version = VersionBumpValidator.modify_version_array(remote_version)
-            if int(local_version[0]) > int(remote_version[0]):
-                if int(local_version[1]) > 0 or int(local_version[2]) > 0:
-                    raise ValidationException("Major version increment should set minor and patch versions to 0.")
-                return False
-            else:
-                self.MAJOR_INSTRUCTIONS_STRING = f" Please change the plugin version to " \
-                                                                 f"{int(remote_version[0])+1}.0.0"
-                return True
-        else:
+        if len(local_version) != 3 or len(remote_version) != 3:
             raise ValidationException("Version does not match required semver format. "
                                       "Version should be in form X.Y.Z with X, Y, and Z "
                                       "being numbers. No special characters or spaces allowed. "
                                       "Versions start at 1.0.0, see https://semver.org/ for more information.")
+        local_version = VersionBumpValidator.modify_version_array(local_version)
+        remote_version = VersionBumpValidator.modify_version_array(remote_version)
+        if int(local_version[0]) > int(remote_version[0]):
+            if int(local_version[1]) > 0 or int(local_version[2]) > 0:
+                raise ValidationException("Major version increment should set minor and patch versions to 0.")
+            return False
+        else:
+            self.MAJOR_INSTRUCTIONS_STRING = f" Please change the plugin version to " \
+                                                                 f"{int(remote_version[0])+1}.0.0"
+            return True
 
     def check_minor_version_increment_needed(self, remote: dict, local: dict):
         # input: complete spec dictionary
         # Checks to see if version is valid sem-ver, and if we already bumped minor version
         local_version = local["version"].split('.')
         remote_version = remote["version"].split('.')
-        if len(local_version) == 3 and len(remote_version) == 3:
-            local_version = VersionBumpValidator.modify_version_array(local_version)
-            remote_version = VersionBumpValidator.modify_version_array(remote_version)
-            if int(local_version[1]) > int(remote_version[1]):
-                if int(local_version[2]) > 0:
-                    raise ValidationException("Minor version increment should set patch version to 0 "
-                                              "The resulting format should be X.Y.0")
-                return False
-            else:
-                self.MINOR_INSTRUCTIONS_STRING = f" Please change the plugin version to " \
-                                                                 f"{int(remote_version[0])}." \
-                                                                 f"{int(remote_version[1]) + 1}.0"
-                return True
-        else:
+        if len(local_version) != 3 or len(remote_version) != 3:
             raise ValidationException("Version does not match required semver format. "
                                       "Version should be in form X.Y.Z with X, Y, and Z "
                                       "being numbers. No special characters or spaces allowed. "
                                       "Versions start at 1.0.0, see https://semver.org/ for more information.")
+        local_version = VersionBumpValidator.modify_version_array(local_version)
+        remote_version = VersionBumpValidator.modify_version_array(remote_version)
+        if int(local_version[1]) > int(remote_version[1]):
+            if int(local_version[2]) > 0:
+                raise ValidationException("Minor version increment should set patch version to 0 "
+                                          "The resulting format should be X.Y.0")
+            return False
+        else:
+            self.MINOR_INSTRUCTIONS_STRING = f" Please change the plugin version to " \
+                                                                 f"{int(remote_version[0])}." \
+                                                                 f"{int(remote_version[1]) + 1}.0"
+            return True
 
     @staticmethod
     def modify_version_array(version_arr: [str]):
@@ -347,21 +351,16 @@ class VersionBumpValidator(KomandPluginValidator):
     def validate(self, spec):
         remote_spec = VersionBumpValidator.get_remote_spec(spec)
         local_spec = spec.spec_dictionary()
-        # perform the different sections of validation
-        # Check if we already did a major version bump- if so, no need to do all this checking
         if not self.check_major_version_increment_needed(remote_spec, local_spec):
             # We already bumped the major version- skip the rest of the validation
             return
-        else:
-            self.validate_actions(remote_spec, local_spec)
-            self.validate_triggers(remote_spec, local_spec)
-            self.validate_connections(remote_spec, local_spec)
-            self.validate_no_types_changed(remote_spec, local_spec)
+        self.validate_actions(remote_spec, local_spec)
+        self.validate_triggers(remote_spec, local_spec)
+        self.validate_connections(remote_spec, local_spec)
+        self.validate_no_types_changed(remote_spec, local_spec)
 
-        # minor version validation (NOTE: It is important that minor comes AFTER major version due to assumptions made)
         if not self.check_minor_version_increment_needed(remote_spec, local_spec):
             # already validated that no major bump was needed and we bumped minor version- skip further validation
             return
-        else:
-            self.validate_minor_triggers(remote_spec, local_spec)
-            self.validate_minor_actions(remote_spec, local_spec)
+        self.validate_minor_triggers(remote_spec, local_spec)
+        self.validate_minor_actions(remote_spec, local_spec)

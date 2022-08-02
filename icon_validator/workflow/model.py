@@ -69,10 +69,7 @@ class WorkflowVersion:
         contents of each step
         :return:  List of step contents as dictionaries
         """
-        content = []
-        for step, value in self.steps.items():
-            content.append(value)
-        return content
+        return [value for step, value in self.steps.items()]
 
     def get_plugin_steps(self) -> List[dict]:
         """
@@ -80,12 +77,8 @@ class WorkflowVersion:
         a plugin
         :return: List of steps that contain a plugin
         """
-        steps = []
         steps_content = self.get_steps_contents()
-        for content in steps_content:
-            if "plugin" in content.keys():
-                steps.append(content)
-        return steps
+        return [content for content in steps_content if "plugin" in content.keys()]
 
     def get_plugins_used(self) -> List[dict]:
         """
@@ -93,13 +86,11 @@ class WorkflowVersion:
          and the plugin used in that node
         :return: List of dicts containing 'node_name' and 'plugin_name'
         """
-        plugins = []
         plugin_steps = self.get_plugin_steps()
-        for step in plugin_steps:
-            plugins.append(
-                {"plugin_name": step["plugin"]["name"], "node_name": step["name"]}
-            )
-        return plugins
+        return [
+            {"plugin_name": step["plugin"]["name"], "node_name": step["name"]}
+            for step in plugin_steps
+        ]
 
 
 @dataclass

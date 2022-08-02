@@ -13,13 +13,12 @@ class DefaultValueValidator(KomandPluginValidator):
             return
 
         for k, v in validate_variables.items():
-            if "default" in v:
-                if k == "domain":
-                    if validators.domain(v["default"]) is not True:
-                        raise ValidationException(f"Variable {k}'s default value is not a valid domain.")
-                elif k == "email" or k == "email_address":
-                    if validators.email(v["default"]) is not True:
-                        raise ValidationException(f"Variable {k}'s default value is not a valid email address.")
+            if k == "domain":
+                if "default" in v and validators.domain(v["default"]) is not True:
+                    raise ValidationException(f"Variable {k}'s default value is not a valid domain.")
+            elif k in ["email", "email_address"]:
+                if "default" in v and validators.email(v["default"]) is not True:
+                    raise ValidationException(f"Variable {k}'s default value is not a valid email address.")
 
     @staticmethod
     def validate_action(action):

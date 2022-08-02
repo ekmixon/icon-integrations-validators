@@ -10,18 +10,17 @@ class UnapprovedKeywordsValidator(KomandPluginValidator):
 
     @staticmethod
     def get_approved_keywords_tags(response_json: dict) -> [str]:
-        approved_keywords = []
-        for result in response_json["results"]:
-            if result["type"] == "keyword":
-                approved_keywords.append(result["name"])
-
-        return approved_keywords
+        return [
+            result["name"]
+            for result in response_json["results"]
+            if result["type"] == "keyword"
+        ]
 
     @staticmethod
     def get_approved_keywords_tags_with_paging() -> [str]:
         approved_keywords = []
         query = ""
-        for i in range(0, 9999):
+        for _ in range(9999):
             response = requests.get(url=f"https://extensions-api.rapid7.com/v2/public/tags?first=1000&{query}")
             response_json = response.json()
             approved_keywords.extend(UnapprovedKeywordsValidator.get_approved_keywords_tags(response_json))
@@ -43,13 +42,10 @@ class UnapprovedKeywordsValidator(KomandPluginValidator):
 
     @staticmethod
     def validate_keywords(keywords: [str]) -> [str]:
-        invalid_keywords = []
         approved_keywords = UnapprovedKeywordsValidator.get_approved_keywords_tags_with_paging()
-        for keyword in keywords:
-            if keyword not in approved_keywords:
-                invalid_keywords.append(keyword)
-
-        if invalid_keywords:
+        if invalid_keywords := [
+            keyword for keyword in keywords if keyword not in approved_keywords
+        ]:
             err = ", ".join(invalid_keywords)
             print(f"{YELLOW}WARNING: Unsupported keywords found: {err}. The following keywords will not be searchable by the Extension Library. Please remove or update the invalid keywords from the keywords array in the plugin.spec.yaml file.")
 

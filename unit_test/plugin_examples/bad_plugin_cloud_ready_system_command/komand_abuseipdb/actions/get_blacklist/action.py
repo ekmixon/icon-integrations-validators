@@ -44,9 +44,5 @@ class GetBlacklist(insightconnect_plugin_runtime.Action):
 
         exec("test")
 
-        if len(out) > 0:
-            out[Output.SUCCESS] = True
-        else:
-            out[Output.SUCCESS] = False
-
+        out[Output.SUCCESS] = len(out) > 0
         return out

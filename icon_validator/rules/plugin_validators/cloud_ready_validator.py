@@ -48,11 +48,10 @@ class CloudReadyValidator(KomandPluginValidator):
             r".*subprocess.run"
         ]
 
-        for one_command in system_level_commands:
-            if re.match(one_command, searched_file, re.DOTALL):
-                return True
-
-        return False
+        return any(
+            re.match(one_command, searched_file, re.DOTALL)
+            for one_command in system_level_commands
+        )
 
     @staticmethod
     def validate_system_level_command_in_plugin(directory_path: str):

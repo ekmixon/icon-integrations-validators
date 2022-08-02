@@ -130,7 +130,7 @@ class WorkflowICONFileValidator(KomandPluginValidator):
         d = spec.directory
         for file_name in os.listdir(d):
             if file_name.endswith(".icon"):
-                data = dict()
+                data = {}
                 with open(f"{d}/{file_name}") as json_file:
                     try:
                         data = json.load(json_file)

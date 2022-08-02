@@ -62,7 +62,7 @@ class WorkflowHelpPluginUtilizationValidator(KomandPluginValidator):
     def extract_plugins_used(workflow: dict) -> [dict]:
 
         # Raw list of plugins
-        plugin_list = list()
+        plugin_list = []
         try:
             for step_id in workflow["steps"]:
                 step: dict = workflow["steps"][step_id]
@@ -105,9 +105,15 @@ class WorkflowHelpPluginUtilizationValidator(KomandPluginValidator):
         plugins_list = plugins_utilized[0].split("\n")
         # remove trailing and leading lines so that only plugin utilization data is left
         plugins_list = list(
-            filter(lambda item: item.startswith("|") and not (item.startswith("|Plugin") or item.startswith("|-")),
-                   plugins_list))
-        plugins_dict_list = list()
+            filter(
+                lambda item: item.startswith("|")
+                and not item.startswith("|Plugin")
+                and not item.startswith("|-"),
+                plugins_list,
+            )
+        )
+
+        plugins_dict_list = []
         # Build dictionary for each plugin e.g. {'Plugin': 'ExtractIt', 'Version': '1.1.6', 'Count': 1}
         # then append to a list
         for plugin in plugins_list:

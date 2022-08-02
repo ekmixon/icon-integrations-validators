@@ -4,10 +4,7 @@ class KomandPluginValidator:
     """
 
     def __init__(self, name=None):
-        if name:
-            self.name = name
-        else:
-            self.name = self.__class__.__name__
+        self.name = name or self.__class__.__name__
 
     def validate(self, plugin_spec):
         pass

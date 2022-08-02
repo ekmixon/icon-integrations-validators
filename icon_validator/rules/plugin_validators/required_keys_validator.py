@@ -32,11 +32,11 @@ class RequiredKeysValidator(KomandPluginValidator):
     @staticmethod
     def validate_existing_resources(spec_dict: dict):
         resource_list = ["vendor_url", "source_url", "license_url"]
-        keys_with_novalue = []
-        for resource, value in spec_dict["resources"].items():
-            if resource in resource_list and value is None:
-                keys_with_novalue.append(resource)
-        if len(keys_with_novalue) > 0:
+        if keys_with_novalue := [
+            resource
+            for resource, value in spec_dict["resources"].items()
+            if resource in resource_list and value is None
+        ]:
             RequiredKeysValidator.raise_exception(
                 "resources",
                 f"Keys {keys_with_novalue} are present with an empty value, please remove empty key or provide a suitable value"

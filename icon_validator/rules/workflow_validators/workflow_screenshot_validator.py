@@ -8,8 +8,8 @@ from icon_validator.rules.lists.lists import title_validation_list
 class WorkflowScreenshotValidator(KomandPluginValidator):
     def __init__(self):
         super().__init__()
-        self._files_list = list()
-        self._names_list = list()
+        self._files_list = []
+        self._names_list = []
 
     @staticmethod
     def validate_title(title):
@@ -41,13 +41,13 @@ class WorkflowScreenshotValidator(KomandPluginValidator):
                     raise ValidationException(
                         f"Title contains a capitalized '{word}' when it should not."
                     )
-                elif "By" == word and not title.endswith("By"):
+                elif word == "By" and not title.endswith("By"):
                     # This is OK: Order By
                     # This is NOT OK: Search By String
                     raise ValidationException(
                         "Title contains a capitalized 'By' when it should not."
                     )
-                elif "Of" == word and not title.endswith("Of"):
+                elif word == "Of" and not title.endswith("Of"):
                     # This is OK: Member Of
                     # This is NOT OK: Type Of String
                     raise ValidationException(
@@ -55,11 +55,11 @@ class WorkflowScreenshotValidator(KomandPluginValidator):
                     )
                 elif (
                     not word[0].isupper()
-                    and not word[0] == "("
+                    and word[0] != "("
                     and not word[0].isnumeric()
-                    and not word.capitalize() in title_validation_list
+                    and word.capitalize() not in title_validation_list
                 ):
-                    if not word.lower() == "by" or word.lower() == "of":
+                    if word.lower() != "by" or word.lower() == "of":
                         raise ValidationException(
                             f"Title contains a lowercase '{word}' when it should not."
                         )
@@ -70,7 +70,7 @@ class WorkflowScreenshotValidator(KomandPluginValidator):
         Runs validate_title method on all title keys.
         """
         screenshots = spec.spec_dictionary()["resources"]["screenshots"]
-        titles_list = list()
+        titles_list = []
         for screenshot in screenshots:
             try:
                 titles_list.append(screenshot["title"])
@@ -167,9 +167,7 @@ class WorkflowScreenshotValidator(KomandPluginValidator):
             name["name"] for name in spec.spec_dictionary()["resources"]["screenshots"]
         }
 
-        mismatches = screenshot_files.difference(spec_screenshots)
-
-        if mismatches:
+        if mismatches := screenshot_files.difference(spec_screenshots):
             raise ValidationException(
                 "Mismatch between provided screenshot files and screenshots in "
                 f"workflow.spec.yaml! The following mismatches were found: {', '.join(sorted(list(mismatches)))}"

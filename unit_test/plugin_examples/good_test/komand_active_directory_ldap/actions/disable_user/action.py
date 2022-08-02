@@ -45,17 +45,23 @@ class DisableUser(komand.Action):
         try:
             dn_test[0]
         except Exception as ex:
-            self.logger.error('The DN ' + escaped_dn + ' was not found')
-            raise PluginException(cause="The DN was not found",
-                                  assistance="The DN " + escaped_dn + " was not found") from ex
+            self.logger.error(f'The DN {escaped_dn} was not found')
+            raise PluginException(
+                cause="The DN was not found",
+                assistance=f"The DN {escaped_dn} was not found",
+            ) from ex
+
         user_list = [d['attributes'] for d in results if 'attributes' in d]
         user_control = user_list[0]
         try:
             account_status = user_control['userAccountControl']
         except Exception as ex:
-            self.logger.error('The DN ' + escaped_dn + ' is not a user')
-            raise PluginException(cause="The DN is not a user",
-                                  assistance="The DN " + escaped_dn + " is not a user") from ex
+            self.logger.error(f'The DN {escaped_dn} is not a user')
+            raise PluginException(
+                cause="The DN is not a user",
+                assistance=f"The DN {escaped_dn} is not a user",
+            ) from ex
+
         user_account_flag = 2
         account_status = account_status | user_account_flag
 
@@ -66,5 +72,5 @@ class DisableUser(komand.Action):
         if result['result'] == 0:
             return {'success': True}
 
-        self.logger.error('failed: error message %s' % output)
+        self.logger.error(f'failed: error message {output}')
         return {'success': False}

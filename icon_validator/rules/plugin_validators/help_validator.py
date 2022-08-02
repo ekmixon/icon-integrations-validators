@@ -33,14 +33,16 @@ class HelpValidator(KomandPluginValidator):
         if "- Initial plugin" not in help_str:
             raise ValidationException("Initial plugin version line is missing: 1.0.0 - Initial plugin.")
 
-        if "Support web server mode" not in help_str and "1.0.0 - Initial plugin" not in help_str:
-            # Match legacy versioning which indicates this plugin came before web server mode existed
-            if "* 0." in help_str:
-                # Takes advantage of the fact that versioning used to start from 0.1.0 instead of 1.0.0
-                raise ValidationException(
-                    "Initial plugin was released prior to schema V2 but versioning history."
-                    "does not document the upgrade to web server mode: Support web server mode."
-                )
+        if (
+            "Support web server mode" not in help_str
+            and "1.0.0 - Initial plugin" not in help_str
+            and "* 0." in help_str
+        ):
+            # Takes advantage of the fact that versioning used to start from 0.1.0 instead of 1.0.0
+            raise ValidationException(
+                "Initial plugin was released prior to schema V2 but versioning history."
+                "does not document the upgrade to web server mode: Support web server mode."
+            )
 
     @staticmethod
     def validate_same_actions_title(spec, help_):
@@ -54,9 +56,11 @@ class HelpValidator(KomandPluginValidator):
     @staticmethod
     def validate_same_actions_loop(section, help_str):
         for i in section:
-            if "title" in section[i]:
-                if f"#### {section[i]['title']}" not in help_str:
-                    raise ValidationException(f"Help section is missing title of: #### {section[i]['title']}")
+            if (
+                "title" in section[i]
+                and f"#### {section[i]['title']}" not in help_str
+            ):
+                raise ValidationException(f"Help section is missing title of: #### {section[i]['title']}")
 
     @staticmethod
     def remove_example_output(help_content):
@@ -67,22 +71,24 @@ class HelpValidator(KomandPluginValidator):
 
     @staticmethod
     def validate_title_spelling(spec, help_):
-        if "title" in spec:
-            title = spec["title"]
-            lower_title = title.lower()
-            help_ = HelpValidator.remove_example_output(help_)
-            for line in help_.split("\n"):
-                lower_line = line.lower()
-                if lower_title in lower_line:
-                    if title not in line:
-                        if lower_line[lower_line.find(title.lower()) - 1].isspace():
-                            if line.startswith("$"):
-                                pass
-                            elif line.startswith(">>>"):
-                                pass
-                            else:
-                                raise ValidationException(
-                                    "Help section contains non-matching title in line: {}".format(line))
+        if "title" not in spec:
+            return
+        title = spec["title"]
+        lower_title = title.lower()
+        help_ = HelpValidator.remove_example_output(help_)
+        for line in help_.split("\n"):
+            lower_line = line.lower()
+            if (
+                lower_title in lower_line
+                and title not in line
+                and lower_line[lower_line.find(title.lower()) - 1].isspace()
+            ):
+                if line.startswith("$"):
+                    pass
+                elif not line.startswith(">>>"):
+                    raise ValidationException(
+                        f"Help section contains non-matching title in line: {line}"
+                    )
 
     @staticmethod
     def validate_help_headers(help_str):
@@ -91,12 +97,11 @@ class HelpValidator(KomandPluginValidator):
         if HelpValidator.taskExist and "### Tasks" not in help_str:
             raise ValidationException("Help section is missing header: ### Tasks")
 
-        help_headers_errors = []
-        for header in HelpValidator.HELP_HEADERS_LIST:
-            if header not in help_str:
-                help_headers_errors.append(f"Help section is missing header: {header}")
-
-        if help_headers_errors:
+        if help_headers_errors := [
+            f"Help section is missing header: {header}"
+            for header in HelpValidator.HELP_HEADERS_LIST
+            if header not in help_str
+        ]:
             raise ValidationException("\n".join(help_headers_errors))
 
     @staticmethod

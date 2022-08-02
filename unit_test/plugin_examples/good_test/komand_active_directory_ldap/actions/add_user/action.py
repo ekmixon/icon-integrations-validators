@@ -27,23 +27,19 @@ class AddUser(komand.Action):
         additional_parameters = params.get('additional_parameters')
         user_principal_name = params.get('user_principal_name')
 
-        if account_disabled == 'true':
-            user_account_control = 514
-        else:
-            user_account_control = 512
-
-        full_name = first_name + ' ' + last_name
+        user_account_control = 514 if account_disabled == 'true' else 512
+        full_name = f'{first_name} {last_name}'
         domain_dn = domain_name.replace('.', ',DC=')
         if user_ou == "Users":
             user_ou = user_ou.replace(',', ',CN=')
         else:
             user_ou = user_ou.replace(',', ',OU=')
         if user_ou == "Users":
-            dn = 'CN={},CN={},DC={}'.format(full_name, user_ou, domain_dn)
+            dn = f'CN={full_name},CN={user_ou},DC={domain_dn}'
         else:
-            dn = 'CN={},OU={},DC={}'.format(full_name, user_ou, domain_dn)
+            dn = f'CN={full_name},OU={user_ou},DC={domain_dn}'
 
-        self.logger.info("User DN=" + dn)
+        self.logger.info(f"User DN={dn}")
 
         if ssl is False:
             self.logger.info('Warning SSL is not enabled. User password can not be set. User account will be disabled')
@@ -51,7 +47,7 @@ class AddUser(komand.Action):
         parameters = {'givenName': first_name, 'sn': last_name, 'sAMAccountName': logon_name,
                       'userPassword': password, 'userPrincipalName': user_principal_name}
 
-        parameters.update(additional_parameters)
+        parameters |= additional_parameters
         log_parameters = parameters
         log_parameters.pop("userPassword")
         self.logger.info(log_parameters)

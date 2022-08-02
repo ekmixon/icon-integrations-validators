@@ -14,12 +14,18 @@ class WorkflowChangelogValidator(KomandPluginValidator):
         Extracts the version history from help.md.
         This data is used as input for the validaters.
         """
-        raw_versions = re.findall(r"Version History\n\n.*?\n\n", help_content, re.DOTALL)
-        if not raw_versions:
-            raise ValidationException("Incorrect Version History in help.md.")
+        if raw_versions := re.findall(
+            r"Version History\n\n.*?\n\n", help_content, re.DOTALL
+        ):
+            return (
+                raw_versions[0]
+                .replace("Version History\n\n", "")
+                .replace("\n\n", "")
+                .split("\n")
+            )
 
-        versions_history = raw_versions[0].replace("Version History\n\n", "").replace("\n\n", "").split("\n")
-        return versions_history
+        else:
+            raise ValidationException("Incorrect Version History in help.md.")
 
     @staticmethod
     def validate_version_numbers(versions_history):

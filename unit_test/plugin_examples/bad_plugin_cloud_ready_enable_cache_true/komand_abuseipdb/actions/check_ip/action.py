@@ -51,9 +51,5 @@ class CheckIp(insightconnect_plugin_runtime.Action):
                 assistance=f"(non-JSON or no response was received). Response was: {r.text}",
             )
 
-        if len(out) > 0:
-            out[Output.FOUND] = True
-        else:
-            out[Output.FOUND] = False
-
+        out[Output.FOUND] = len(out) > 0
         return out

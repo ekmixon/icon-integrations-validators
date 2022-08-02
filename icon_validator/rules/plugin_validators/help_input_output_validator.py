@@ -13,12 +13,16 @@ class HelpInputOutputValidator(KomandPluginValidator):
 
     @staticmethod
     def validate_input(action_title: str, action_input: list, process_type: str):
-        regex = r"### " + process_type.capitalize() + ".*?#### " + action_title + "\n.*?#+ Output"
+        regex = (
+            f"### {process_type.capitalize()}.*?#### {action_title}"
+            + "\n.*?#+ Output"
+        )
+
         if process_type == "actions":
-            regex = regex + ".*?### Triggers"
+            regex = f"{regex}.*?### Triggers"
         elif process_type == "triggers":
             if "### Tasks" in HelpInputOutputValidator.raw_help:
-                regex = regex + ".*?### Tasks"
+                regex = f"{regex}.*?### Tasks"
 
         action_input_section = re.findall(regex, HelpInputOutputValidator.raw_help, re.DOTALL)
 
@@ -29,7 +33,7 @@ class HelpInputOutputValidator(KomandPluginValidator):
             HelpInputOutputValidator.action_missing = 1
             return
 
-        regex = r"#### " + action_title + "\n.*?#+ Output"
+        regex = f"#### {action_title}" + "\n.*?#+ Output"
         action_input_section = re.findall(regex, action_input_section[0], re.DOTALL)
 
         for input_fields in action_input:
@@ -38,29 +42,44 @@ class HelpInputOutputValidator(KomandPluginValidator):
 
     @staticmethod
     def validate_output(action_title: str, action_output: list, process_type: str):
-        regex = r"### " + process_type.capitalize() + ".*?#### " + action_title + "\n.*?#+ Output\n\n.*?\n\n"
+        regex = (
+            f"### {process_type.capitalize()}.*?#### {action_title}"
+            + "\n.*?#+ Output\n\n.*?\n\n"
+        )
+
         if process_type == "actions":
-            regex = regex + ".*?### Trigger"
+            regex = f"{regex}.*?### Trigger"
         elif process_type == "triggers":
             if "### Tasks" in HelpInputOutputValidator.raw_help:
-                regex = regex + ".*?### Tasks"
+                regex = f"{regex}.*?### Tasks"
 
         action_help_section_temp = re.findall(regex, HelpInputOutputValidator.raw_help, re.DOTALL)
-        regex = r"#### " + action_title + "\n.*?#+ Output\n\n.*?\n\n"
+        regex = f"#### {action_title}" + "\n.*?#+ Output\n\n.*?\n\n"
         action_help_section = re.findall(regex, action_help_section_temp[0], re.DOTALL)
 
-        if "This " + process_type[:-1] + " does not contain any outputs." not in action_help_section[0]:
-            regex = r"### " + process_type.capitalize() + ".*?#### " + action_title + "\n.*?#+ Output\n\n.*?" + re.escape(
-                "|Name|Type|Required|Description|") + ".*?\n\n"
+        if (
+            f"This {process_type[:-1]} does not contain any outputs."
+            not in action_help_section[0]
+        ):
+            regex = (
+                f"### {process_type.capitalize()}.*?#### {action_title}"
+                + "\n.*?#+ Output\n\n.*?"
+                + re.escape("|Name|Type|Required|Description|")
+            ) + ".*?\n\n"
+
             if process_type == "actions":
-                regex = regex + ".*?### Triggers"
+                regex = f"{regex}.*?### Triggers"
             elif process_type == "triggers":
                 if "### Tasks" in HelpInputOutputValidator.raw_help:
-                    regex = regex + ".*?### Tasks"
+                    regex = f"{regex}.*?### Tasks"
 
             action_help_section_temp = re.findall(regex, HelpInputOutputValidator.raw_help, re.DOTALL)
-            regex = r"#### " + action_title + "\n.*?#+ Output\n\n.*?" + re.escape(
-                "|Name|Type|Required|Description|") + ".*?\n\n"
+            regex = (
+                f"#### {action_title}"
+                + "\n.*?#+ Output\n\n.*?"
+                + re.escape("|Name|Type|Required|Description|")
+            ) + ".*?\n\n"
+
             action_output_section_temp = re.findall(regex, action_help_section_temp[0], re.DOTALL)
             action_output_section = re.findall(
                 r"#+ Output\n\n.*?" + re.escape("|Name|Type|Required|Description|") + ".*?\n\n",

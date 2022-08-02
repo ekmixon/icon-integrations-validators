@@ -9,7 +9,7 @@ class WorkflowExtensionValidator(KomandPluginValidator):
         """
         Checks that the extension key in .yaml has a value of workflow
         """
-        if not extension == "workflow":
+        if extension != "workflow":
             raise ValidationException("Extension key must have a value of workflow.")
 
     @staticmethod

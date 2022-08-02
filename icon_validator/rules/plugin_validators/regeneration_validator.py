@@ -60,17 +60,19 @@ class Checksum(object):
         self.schemas.sort()
         other.schemas.sort()
 
-        equals = (self.spec == other.spec) and (self.manifest == other.manifest) and (self.setup == self.setup) \
-                 and (self.schemas == other.schemas)
-        return equals
+        return (
+            (self.spec == other.spec)
+            and (self.manifest == other.manifest)
+            and (self.setup == self.setup)
+            and (self.schemas == other.schemas)
+        )
 
     def to_json(self) -> JSON:
         """
         Returns a JSON-serialized string of the Checksum object
         :return: JSON-serialized string of the Checksum object
         """
-        j: JSON = json.dumps(self, default=lambda o: o.__dict__)
-        return j
+        return json.dumps(self, default=lambda o: o.__dict__)
 
     @classmethod
     def from_json(cls, json_string: str):
@@ -127,21 +129,17 @@ class ChecksumHandler(object):
             schema_hashes: [SchemaHash] = self._hash_python_schemas()
             manifest_hash: MD5 = self._hash_python_manifest()
             setup_hash: MD5 = self._hash_python_setup()
-            post_regen_checksum_file: Checksum = Checksum.from_plugin(
-                spec_hash=spec_hash, schema_hashes=schema_hashes, manifest_hash=manifest_hash, setup_hash=setup_hash
-            )
         else:
             spec_hash: MD5 = self._hash_python_spec()
             schema_hashes: [SchemaHash] = self._hash_go_schemas()
             manifest_hash: MD5 = self._hash_go_manifest()
             setup_hash = None
-            post_regen_checksum_file: Checksum = Checksum.from_plugin(
-                spec_hash=spec_hash, schema_hashes=schema_hashes, manifest_hash=manifest_hash, setup_hash=setup_hash
-            )
-
+        post_regen_checksum_file: Checksum = Checksum.from_plugin(
+            spec_hash=spec_hash, schema_hashes=schema_hashes, manifest_hash=manifest_hash, setup_hash=setup_hash
+        )
         # Now that we have a post-regeneration Checksum, let's compare!
         # print(post_regen_checksum_file.to_json())
-        if not (provided_checksum_file == post_regen_checksum_file):
+        if provided_checksum_file != post_regen_checksum_file:
             raise ValidationException("Error: Hashes between provided plugin and checksum were not equal. "
                             "Regenerate the plugin and push to working branch.")
 
@@ -151,7 +149,7 @@ class ChecksumHandler(object):
             if "schema.py" not in files:
                 continue
 
-            identifier = "%s/schema.py" % os.path.basename(root)
+            identifier = f"{os.path.basename(root)}/schema.py"
             filepath = os.path.join(root, "schema.py")
 
             with open(file=filepath, mode="rb") as f:
@@ -284,7 +282,7 @@ class RegenerationValidator(KomandPluginValidator):
     @staticmethod
     def is_run_from_jenkins() -> bool:
         directory_contents: [str] = os.listdir(".")
-        if "Gopkg.lock" not in directory_contents and "setup.py" not in directory_contents:
-            return True
-        else:
-            return False
+        return (
+            "Gopkg.lock" not in directory_contents
+            and "setup.py" not in directory_contents
+        )

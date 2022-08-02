@@ -30,7 +30,10 @@ class ModifyGroups(komand.Action):
             group = extend.ad_remove_members_from_groups(conn, dn, group_dn, fix=True)
 
         if group is False:
-            self.logger.log("ModifyGroups: Unexpected result for group. Group was " + str(group))
+            self.logger.log(
+                f"ModifyGroups: Unexpected result for group. Group was {str(group)}"
+            )
+
             raise PluginException(PluginException.Preset.UNKNOWN)
 
         return {'success': group}

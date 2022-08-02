@@ -115,13 +115,13 @@ class TestPluginValidate(unittest.TestCase):
     def test_version_validator_should_faile_when_version_same_in_api(self):
         # example workflow in plugin_examples directory. Run tests with these files
         version = requests.get(
-            url=f"https://extensions-api.rapid7.com/v1/public/extensions/active_directory_ldap",
-            timeout=3
+            url="https://extensions-api.rapid7.com/v1/public/extensions/active_directory_ldap",
+            timeout=3,
         ).json()["version"]
 
-        f = open("plugin_examples/version_validator/plugin.spec_bad.yaml", 'w')
-        f.write(f"plugin_spec_version: v2\nname: active_directory_ldap\nversion: {version}")
-        f.close()
+
+        with open("plugin_examples/version_validator/plugin.spec_bad.yaml", 'w') as f:
+            f.write(f"plugin_spec_version: v2\nname: active_directory_ldap\nversion: {version}")
         directory_to_test = "plugin_examples/version_validator"
         file_to_test = "plugin.spec_bad.yaml"
         result = validate(directory_to_test, file_to_test, False, True, [VersionValidator()])
@@ -702,9 +702,8 @@ class TestPluginValidate(unittest.TestCase):
 
     @staticmethod
     def replace_requirements(path, text):
-        f = open(path, 'w')
-        f.write(text)
-        f.close()
+        with open(path, 'w') as f:
+            f.write(text)
 
 
 class MockRepoSpecResponse:
@@ -717,5 +716,4 @@ class MockRepoSpecResponse:
         # otherwise, just use a copy of the existing spec
         else:
             spec = KomandPluginSpec(directory, "plugin.spec.yaml")
-        spec_dict = spec.spec_dictionary()
-        return spec_dict
+        return spec.spec_dictionary()

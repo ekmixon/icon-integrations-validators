@@ -26,7 +26,7 @@ class ConfidentialValidator(KomandPluginValidator):
     @staticmethod
     def validate_emails(content: [str], path_to_file: str):
         email_pattern = re.compile(r"([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+){0,}")
-        for i in range(0, len(content)):
+        for i in range(len(content)):
             matches = email_pattern.findall(content[i])
             while "" in matches:
                 matches.remove("")
@@ -66,4 +66,6 @@ class ConfidentialValidator(KomandPluginValidator):
         if ConfidentialValidator.violations:
             for violation in ConfidentialValidator.violations:
                 print(f"violation: {violation}")
-            raise ValidationException(f"Please use 'user@example.com' when including emails. The above items violated this.")
+            raise ValidationException(
+                "Please use 'user@example.com' when including emails. The above items violated this."
+            )

@@ -20,7 +20,7 @@ class IconValidator(KomandPluginValidator):
     @staticmethod
     def check_icon_file_exists(plugin_spec):
         directory = plugin_spec.directory
-        icon_file = directory + "/" + "icon.png"
+        icon_file = f"{directory}/icon.png"
 
         f = Path(icon_file)
         if not f.is_file():
@@ -29,7 +29,7 @@ class IconValidator(KomandPluginValidator):
     @staticmethod
     def check_icon_less_than_equal_70kb(plugin_spec):
         directory = plugin_spec.directory
-        icon_file = directory + "/" + "icon.png"
+        icon_file = f"{directory}/icon.png"
 
         info = os.stat(icon_file)
         if info.st_size >= 70000:
@@ -38,7 +38,7 @@ class IconValidator(KomandPluginValidator):
     @staticmethod
     def check_if_icon_is_png(plugin_spec):
         directory = plugin_spec.directory
-        icon_file = directory + "/" + "icon.png"
+        icon_file = f"{directory}/icon.png"
         kind = filetype.guess(icon_file)
 
         if kind.extension != "png":
@@ -60,6 +60,6 @@ class IconValidator(KomandPluginValidator):
         extension_image_file = f"{directory}/extension.png"
 
         image_file = os.stat(extension_image_file)
-        if not image_file.st_size > 0:
+        if image_file.st_size <= 0:
             raise ValidationException(
                 "Extension image file is size zero. Please include a color PNG image of a logo for this vendor or product.")

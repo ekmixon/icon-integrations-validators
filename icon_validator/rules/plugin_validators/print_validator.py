@@ -6,12 +6,7 @@ class PrintValidator(KomandPluginValidator):
 
     @staticmethod
     def validate_print(section):
-        print_found = False
-
-        for f in section:
-            if "print(" in f:
-                print_found = True
-
+        print_found = any("print(" in f for f in section)
         if print_found:
             raise ValidationException("One or more files use print statements, update to use self.logger.")
 

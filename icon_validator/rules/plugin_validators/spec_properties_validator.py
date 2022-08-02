@@ -183,19 +183,25 @@ class SpecPropertiesValidator(KomandPluginValidator):
             raise ValidationException(all_offenses)
 
     def _add_component_offense_string(self, component: str, offenders: {str}):
-        self.component_offenses.append("%s: %s" % (component, offenders))
+        self.component_offenses.append(f"{component}: {offenders}")
 
     def _add_property_offense_string(self, component: str, identifier: str, offenders: {str}):
-        self.property_offenses.append("%s:%s: %s" % (component, identifier, offenders))
+        self.property_offenses.append(f"{component}:{identifier}: {offenders}")
 
     def _add_component_task_offense_string(self, component: str, offenders: {str}):
-        self.component_task_offenses.append("%s: %s" % (component, offenders))
+        self.component_task_offenses.append(f"{component}: {offenders}")
 
     def _add_component_task_missing_state_schedule_offense_string(self, component: str, offenders: {str}):
-        self.component_task_missing_state_schedule_offenses.append("%s: %s" % (component, offenders))
+        self.component_task_missing_state_schedule_offenses.append(
+            f"{component}: {offenders}"
+        )
 
     def _add_task_state_property_offense_string(self, component: str, identifier: str, offenders: {str}):
-        self.task_state_property_offenses.append("%s:%s: %s" % (component, identifier, offenders))
+        self.task_state_property_offenses.append(
+            f"{component}:{identifier}: {offenders}"
+        )
 
     def _add_task_schedule_property_offense_string(self, component: str, identifier: str, offenders: {str}):
-        self.task_schedule_property_offenses.append("%s:%s: %s" % (component, identifier, offenders))
+        self.task_schedule_property_offenses.append(
+            f"{component}:{identifier}: {offenders}"
+        )
